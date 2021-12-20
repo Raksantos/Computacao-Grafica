@@ -1,6 +1,5 @@
 /*Aluno: Rodrigo Santos da Silva - 5º Período
-* Girar: Esquerda = a, Direita = d
-* Velocidade: Mais = m, Menos = l
+* Y = aumenta velocidade
 */
 
 #include <GL/glut.h>
@@ -8,130 +7,152 @@
 
 using namespace std;
 
-#define PI 3.14159265358979323846
-#define SIN_60 0.86
+int year = 0, day = 0;
+double lx = 0, ly = 0, lz = 0, yAngle = 0;
 
-float speed_angle = PI / 4;
-
-typedef struct Vertex {
-    GLfloat x, y;
-} Vertex;
-
-float colors[7][3] = { {1.0, 1.0, 1.0}, {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 0.0}, {1.0, 0.0, 0.0},
-                        {0.0, 0.0, 0.0}, {1.0, 1.0, 0.0} };
-
-Vertex flower[] = {
-    {12.5, 25 * SIN_60},
-    {20.0, 5.0},
-
-    {-12.5, 25 * SIN_60},
-    {-20.0, 5.0},
-
-    {20.0, -5.0},
-    {12.5, 25 * (-SIN_60)},
-
-    {-20.0, -5.0},
-    {-12.5, 25 * (-SIN_60)}
-};
-
-void init(void)
+void scheduleUpdate(int value)
 {
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glOrtho(-100.0, 100.0, -100.0, 100.0, 1.0, -1.0);
-    glutReshapeWindow(640, 480);
-    glMatrixMode(GL_PROJECTION); //Projecao 2D
-    glLoadIdentity();
-}
-
-
-void spin(float angle)
-{
-    Vertex aux;
-
-    for (int i = 0; i < 8; i += 2) {
-        for (int j = 0; j <= i + 1; j++) {
-            aux = flower[j];
-            flower[j].x = (aux.x * cos(angle)) - (aux.y * sin(angle));
-            flower[j].y = (aux.y * cos(angle)) + (aux.x * sin(angle));
-        }
-    }
+    glutTimerFunc(10, scheduleUpdate, 1);
+    day++, year++;
     glutPostRedisplay();
 }
 
-void keyboard(unsigned char key, int a, int b)
+void init()
 {
-    float variation;
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(0, 0, 0, 0);
 
-    switch (key) {
-    case 'a':
-        spin(speed_angle);
-        break;
-    case 'd':
-        spin(-speed_angle);
-        break;
-    case 'm':
-        variation = speed_angle + (1.0f * PI / 16);
-        speed_angle = variation;
-        cout << "Speed: " << speed_angle << "\n";
-        break;
-    case 'l':
-        variation = speed_angle - (1.0f * PI / 16);
-        speed_angle = variation;
-        cout << "Speed: " << speed_angle << "\n";
-        break;
+    //Adding functions to lights after here
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
+    glShadeModel(GL_SMOOTH);
+}
+
+void keyboard(unsigned char key, int x, int y)
+{
+    switch (key) 
+    {
+        case 'y':
+            glutTimerFunc(10, scheduleUpdate, 1);
+            break;
+        case 'Y':
+            glutTimerFunc(10, scheduleUpdate, 1);
+            break;
+        case 27:
+            exit(0);
+            break;
+        default:
+            break;
     }
+}
+
+void reshape(int w, int h)
+{
+    glViewport(0, 0, w, h);
+
+    glMatrixMode(GL_PROJECTION);
+    gluPerspective(60, (double)w / h, 1, 20);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
+}
+
+void drawSolarSystem()
+{
+    //Sun
+    glPushMatrix();
+        glColor3ub(255, 127, 80);
+        glRotatef(year, 1, 0, 0);
+        glRotatef(day, 0, 0, 1);
+        glutSolidSphere(0.5, 100, 100);
+    glPopMatrix();
+
+    // Planet 1
+    glPushMatrix();
+        glColor3ub(255, 255, 0);
+        glRotatef(year, 0, 1, 0);
+        glTranslatef(2, 0, 0);
+        glPushMatrix();
+            glRotatef(day, 0, 1, 0);
+            glutSolidSphere(0.1, 100, 100); // Planet 1
+        glPopMatrix();
+
+        glPushMatrix();
+            glColor3ub(0, 255, 0);
+            glRotatef(1.5 * day, 1, 0, 0);
+            glTranslatef(0.4, 0, 0);
+            glutSolidSphere(0.025, 100, 100); // Moon 1
+        glPopMatrix();
+
+        glPushMatrix();
+            glColor3ub(0, 0, 255);
+            glRotatef(1.75 * day, 1, 1, 0);
+            glTranslatef(0.3, 0, 0);
+            glutSolidSphere(0.025, 100, 100); // Moon 2
+        glPopMatrix();
+    glPopMatrix();
+
+    //Planet 2
+    glPushMatrix();
+        glColor3ub(0, 255, 255);
+        glRotatef(-2.5 * year, 0, -1, 0);
+        glTranslatef(1, 0, 0);
+        glutSolidSphere(0.1, 100, 100); // Planet 2
+    glPopMatrix();
+
+    //Planet 3
+    glPushMatrix();
+        glColor3ub(125, 255, 0);
+        glRotatef(0.5 * year, 0, 1, 1);
+        glTranslatef(2, 0, 0);
+        glutSolidSphere(0.05, 10, 8); // Planet 3
+    glPopMatrix();
+
+    //Planet 4
+    glPushMatrix();
+        glColor3ub(255, 0, 125);
+        glRotatef(-0.8 * year, 0, 0, 1);
+        glTranslatef(2.5, 0, 0);
+        glutSolidSphere(0.15, 100, 100); // Planet 4
+    glPopMatrix();
+
+    //Planet 5
+    glPushMatrix();
+        glColor3ub(255, 255, 255);
+        glRotatef(0.4 * year, 0, 0, 1);
+        glTranslatef(3, 0, 0);
+        glutSolidSphere(0.2, 100, 100); // Planet 5
+    glPopMatrix();
 }
 
 void display()
 {
-    /* Limpar todos os pixels  */
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glColor3f(1.0, 1.0, .0);
-    glBegin(GL_POLYGON);
-    glVertex3f(-1.5, 0.0, -1.0f);
-    glVertex3f(1.5, 0.0, -1.0f);
-    glVertex3f(-1.5, -50.0, -1.0f);
-    glVertex3f(1.5, -50.0, -1.0f);
-    glEnd();
+    glPushMatrix();
+        drawSolarSystem();
+    glPopMatrix();
 
-    /*Desenha folhas da flor de abril*/
 
-    for (int i = 0; i < 8; i += 2) {
-        glBegin(GL_TRIANGLES);
-
-        if (i < 7) {
-            glColor3f(colors[i][0], colors[i][1], colors[i][2]);
-        }
-        glVertex2f(0.0, 0.0);
-
-        for (int j = i; j <= i + 1; j++) {
-            GLfloat x = flower[j].x;
-            GLfloat y = flower[j].y;
-            glVertex2f(x, y);
-        }
-
-        glEnd();
-    }
-
-    glFlush();
+    glutSwapBuffers();
 }
-
 
 int main(int argc, char** argv) {
 
     glutInit(&argc, argv);
 
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowSize(640, 480);
-    glutCreateWindow("Flor de Abril");
+    glutInitWindowSize(800, 800);
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("Planetas");
 
     init();
-
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
+    glutReshapeFunc(reshape);
     glutMainLoop();
-
 
     return 0;
 
