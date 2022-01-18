@@ -8,7 +8,6 @@
 using namespace std;
 
 int year = 0, day = 0;
-double lx = 0, ly = 0, lz = 0, yAngle = 0;
 
 void scheduleUpdate(int value)
 {
@@ -22,7 +21,8 @@ void init()
     glEnable(GL_DEPTH_TEST);
     glClearColor(0, 0, 0, 0);
 
-    //Adding functions to lights after here
+    glEnable(GL_LIGHT0);
+
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
@@ -61,12 +61,30 @@ void reshape(int w, int h)
 
 void drawSolarSystem()
 {
+    //light position
+    GLfloat position[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+    //positioning and creating light
+    glLightfv(GL_LIGHT0, GL_POSITION,  position);
+
+    //Adding shigniness to the planets
+    GLfloat color_1[] = { 0.8f, 0.8f, 0.8f, 1.0f };//White
+    GLfloat color_2[] = { 0.9f, 0.8f, 0.8f, 1.0f };//cyan
+
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, color_2);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, color_1);
+
+    GLfloat shininess[] = { 100 };
+    glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
+
     //Sun
     glPushMatrix();
         glColor3ub(255, 127, 80);
         glRotatef(year, 1, 0, 0);
         glRotatef(day, 0, 0, 1);
+        glDisable(GL_LIGHTING);
         glutSolidSphere(0.5, 100, 100);
+        glEnable(GL_LIGHTING);
     glPopMatrix();
 
     // Planet 1
