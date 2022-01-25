@@ -22,6 +22,7 @@ void init()
     glClearColor(0, 0, 0, 0);
 
     glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHTING);
 
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
@@ -69,7 +70,7 @@ void drawSolarSystem()
 
     //Adding shigniness to the planets
     GLfloat color_1[] = { 0.8f, 0.8f, 0.8f, 1.0f };//White
-    GLfloat color_2[] = { 0.9f, 0.8f, 0.8f, 1.0f };//cyan
+    GLfloat color_2[] = { 0.f, .8f, .8f, 1.f };//Cyan
 
     glMaterialfv(GL_FRONT, GL_DIFFUSE, color_2);
     glMaterialfv(GL_FRONT, GL_SPECULAR, color_1);
